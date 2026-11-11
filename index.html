@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TranHoangSpFA — Nhắn Tin Tự Nhiên & Chân Thành</title>
+    <meta name="theme-color" content="#D96B43">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23D96B43'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E">
+    <!-- Tích hợp Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Cấu hình Tailwind tách riêng (nạp ngay sau Tailwind CDN) -->
+    <script src="js/tailwind-config.js"></script>
+    <!-- Phông chữ Plus Jakarta Sans hỗ trợ tiếng Việt rõ nét -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- CSS tuỳ chỉnh -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/polish.css">
+</head>
+<body class="bg-warm-100 dark:bg-warm-950 text-stone-800 dark:text-stone-100 min-h-screen transition-colors duration-200">
+
+    <!-- KHUNG ỨNG DỤNG DI ĐỘNG CĂN GIỮA -->
+    <div class="max-w-xl mx-auto min-h-screen flex flex-col bg-warm-50 dark:bg-warm-900 shadow-2xl border-x border-warm-200/70 dark:border-stone-800 relative pb-20">
+
+        <!-- ================= 1. HEADER GỌN GÀNG (CÓ NÚT 🪪 HỒ SƠ & ⚙️ CÀI ĐẶT) ================= -->
+        <header class="app-header sticky top-0 z-30 backdrop-blur-md bg-warm-50/95 dark:bg-warm-900/95 border-b border-warm-200 dark:border-stone-800 px-3.5 sm:px-4 py-2.5 space-y-2">
+            <!-- Hàng 1: Bên trái Logo trái tim + Tên app + Dòng phụ | Bên phải chỉ còn 2 nút ⚙️ và 🌙 (40x40px) -->
+            <div class="flex items-start justify-between gap-2.5">
+                <div class="flex items-start gap-2.5 min-w-0 flex-1">
+                    <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-warm-500 to-amber-500 flex items-center justify-center text-white shadow-sm shadow-warm-500/25 flex-shrink-0 mt-0.5">
+                        <svg class="w-5 h-5 header-heart-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-stone-900 dark:text-white leading-tight">TranHoangSpFA</h1>
+                        <p class="header-subtitle text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 mt-0.5 leading-snug">Đồng hành trò chuyện tự nhiên & chân thành</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                    <!-- Nút Cài đặt ⚙️ chính trên Header (Mục 1.1) -->
+                    <button id="btnHeaderSettings" type="button" class="p-2 rounded-xl bg-warm-100 hover:bg-warm-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 border border-warm-200 dark:border-stone-700 transition flex items-center justify-center" title="Mở Cài đặt & Hồ sơ của tôi" aria-label="Cài đặt">
+                        <span class="text-sm leading-none">⚙️</span>
+                    </button>
+                    <!-- Nút đổi giao diện Sáng / Tối -->
+                    <button id="btnToggleTheme" type="button" class="p-2 rounded-xl bg-warm-100 hover:bg-warm-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 border border-warm-200 dark:border-stone-700 transition flex items-center justify-center" title="Chế độ Sáng / Tối" aria-label="Đổi giao diện">
+                        <span id="themeIcon" class="text-sm leading-none">🌙</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hàng 2: Badge trạng thái API, Chip Hồ sơ của tôi (hiện đủ chữ), Chip tên Model (hiện từ sm) -->
+            <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <span id="apiStatusBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300/60 flex-shrink-0">
+                    Chưa kết nối
+                </span>
+                <!-- Nút mở nhanh Hồ sơ của tôi (Mục 1.8) -->
+                <button id="myProfileActiveBadge" type="button" class="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-warm-100 hover:bg-warm-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border border-warm-200 dark:border-stone-700 transition flex-shrink-0" title="Mở Hồ sơ của tôi & Giọng văn cá nhân">
+                    🪪 Hồ sơ của tôi
+                </button>
+                <!-- Badge hiển thị nhanh tên Model đang dùng -->
+                <button id="btnQuickModelBadge" type="button" class="hidden sm:inline-block px-2.5 py-1 rounded-xl text-[11px] font-mono font-semibold bg-warm-100 hover:bg-warm-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border border-warm-200 dark:border-stone-700 transition max-w-[170px] truncate" title="Đổi cài đặt Model & API (gemini-2.5-flash)">
+                    gemini-2.5-flash
+                </button>
+            </div>
+        </header>
+
+        <!-- ================= BANNER ĐẾM NGƯỢC KHI TỰ ĐỘNG THỬ LẠI (429 / 503) ================= -->
+        <div id="retryStatusBanner" class="hidden sticky top-[61px] z-20 bg-amber-500 text-white px-4 py-2 text-xs font-bold shadow-md flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <span class="animate-spin">⏳</span>
+                <span id="retryBannerText">Máy chủ đang bận, tự thử lại sau 3s...</span>
+            </div>
+            <span id="retryAttemptBadge" class="px-2 py-0.5 rounded-full bg-black/20 text-[10px] font-mono">Lần 1/2</span>
+        </div>
+
+        <!-- ================= NỘI DUNG CHÍNH ================= -->
+        <main class="flex-1 px-3.5 py-3.5 space-y-4">
+
+            <!-- ========================================================================= -->
+            <!-- TAB 1 (CHẾ ĐỘ A): 💡 GỢI Ý TRẢ LỜI (QUẢN LÝ THEO TỪNG THREAD)              -->
+            <!-- ========================================================================= -->
+            <section id="viewModeA" class="space-y-3.5">
+
+                <!-- 1. THANH QUẢN LÝ CUỘC TRÒ CHUYỆN (THREADS BAR) & LỊCH SỬ TIN NHẮN CẤU TRÚC (MỤC 1.6) -->
+                <div class="bg-white dark:bg-stone-800/90 border border-warm-200 dark:border-stone-700 rounded-2xl p-3 shadow-xs space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-sm">👤</span>
+                            <h2 class="text-xs font-bold text-stone-700 dark:text-stone-200">Bạn đang nhắn với ai?</h2>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button type="button" id="btnNewThread" class="px-2.5 py-1 rounded-lg bg-warm-500 hover:bg-warm-600 text-white text-[11px] font-bold transition flex items-center gap-1 shadow-xs" title="Tạo cuộc trò chuyện mới">
+                                <span>＋</span>
+                                <span>Thêm người</span>
+                            </button>
+                            <button type="button" id="btnRenameThread" class="p-1.5 rounded-lg bg-warm-100 hover:bg-warm-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-600 dark:text-stone-300 text-xs transition" title="Đổi tên cuộc trò chuyện hiện tại">
+                                ✏️
+                            </button>
+                            <button type="button" id="btnDeleteThread" class="p-1.5 rounded-lg bg-warm-100 hover:bg-red-100 dark:bg-stone-700 dark:hover:bg-red-950/60 text-stone-600 hover:text-red-600 dark:text-stone-300 dark:hover:text-red-400 text-xs transition" title="Xoá cuộc trò chuyện này">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách các Thread cuộn ngang -->
+                    <div id="threadListBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
+
+                    <!-- Thông tin tóm tắt lịch sử của Thread đang chọn -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-stone-500 dark:text-stone-400 pt-1 border-t border-warm-100 dark:border-stone-700/60">
+                        <span id="activeThreadSummary">Đã lưu 0 lượt trao đổi trong cuộc trò chuyện này</span>
+                        <div class="flex items-center gap-2.5">
+                            <button type="button" id="btnToggleThreadMessagesPanel" class="text-stone-600 dark:text-stone-300 hover:underline font-semibold">
+                                💬 Xem lịch sử tin
+                            </button>
+                            <button type="button" id="btnClearThreadMemory" class="text-warm-600 dark:text-amber-400 hover:underline font-semibold">
+                                Làm mới mạch chuyện
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Khung xem/quản lý danh sách tin nhắn cấu trúc thread.messages[] (MỤC 1.6) -->
+                    <div id="threadMessagesDrawer" class="hidden pt-2 border-t border-warm-100 dark:border-stone-700/60 space-y-2">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="font-bold text-stone-700 dark:text-stone-200">🗂️ Tin nhắn đã lưu trong cuộc trò chuyện:</span>
+                            <span id="threadSavedMsgCountBadge" class="font-mono text-[10px] px-2 py-0.5 rounded-full bg-warm-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300">0 tin</span>
+                        </div>
+                        <div id="threadMessagesListContainer" class="p-2.5 rounded-xl bg-warm-50/80 dark:bg-stone-900/60 border border-warm-200/70 dark:border-stone-700"></div>
+                    </div>
+                </div>
+
+                <!-- 2. KHUNG NHẬP TIN NHẮN, ĐÍNH KÈM ẢNH/FILE CHAT & NGỮ CẢNH CỦA THREAD HIỆN TẠI -->
+                <div class="bg-white dark:bg-stone-800/90 border border-warm-200 dark:border-stone-700 rounded-2xl p-4 shadow-xs space-y-3.5">
+                    <div class="flex items-center justify-between">
+                        <label for="herMessageInput" class="text-xs sm:text-sm font-bold text-stone-800 dark:text-stone-100 flex items-center gap-1.5">
+                            <span>💌 Tin nhắn cô ấy vừa gửi:</span>
+                        </label>
+                        <button type="button" id="btnClearInputA" class="text-xs text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition">
+                            Xoá chữ
+                        </button>
+                    </div>
+
+                    <textarea id="herMessageInput" rows="3" placeholder="Dán tin nhắn của cô ấy vào đây (ví dụ: Hnay chạy bài mệt xỉu luôn 😮‍💨) hoặc đính kèm ảnh chụp màn hình chat bên dưới..." class="w-full rounded-xl bg-warm-50 dark:bg-stone-900/90 border border-warm-200 dark:border-stone-700 p-3 text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-warm-500 transition resize-none"></textarea>
+
+                    <!-- Vùng gắn Component Đính kèm ảnh / file chat dùng lại được (Mục 1.2, 1.3, 1.7, 1.9) -->
+                    <div id="modeAAttachmentRoot"></div>
+
+                    <!-- Vùng hiển thị Bong bóng chỉnh sửa hội thoại sau khi bấm "📷 Đọc ảnh chat" (Mục 1.5 & 1.6) -->
+                    <div id="modeAExtractEditorArea" class="hidden"></div>
+
+                    <!-- Ngữ cảnh của người đang nhắn (Lưu riêng theo từng Thread) -->
+                    <div class="space-y-2.5 pt-1 border-t border-warm-100 dark:border-stone-700/60">
+                        <div>
+                            <span class="text-xs font-bold text-stone-600 dark:text-stone-300 block mb-1.5">📍 Quen ở đâu:</span>
+                            <div class="flex flex-wrap gap-1.5" id="ctxWhereGroup">
+                                <button type="button" data-value="Mới quen qua IG/FB" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Mới quen qua IG/FB</button>
+                                <button type="button" data-value="Học cùng lớp / CLB" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Cùng lớp / CLB</button>
+                                <button type="button" data-value="Bạn của bạn giới thiệu" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Bạn của bạn</button>
+                                <button type="button" data-value="Quen qua App hẹn hò" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">App hẹn hò</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-bold text-stone-600 dark:text-stone-300 block mb-1.5">🤝 Mức độ thân:</span>
+                            <div class="flex flex-wrap gap-1.5" id="ctxClosenessGroup">
+                                <button type="button" data-value="Mới bắt chuyện vài lần" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Mới bắt chuyện</button>
+                                <button type="button" data-value="Đang nói chuyện khá hợp" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Đang nói chuyện vui</button>
+                                <button type="button" data-value="Đã từng gặp ngoài đời" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Đã gặp ngoài đời</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-bold text-stone-600 dark:text-stone-300 block mb-1.5">🎯 Mong muốn của bạn:</span>
+                            <div class="flex flex-wrap gap-1.5" id="ctxGoalGroup">
+                                <button type="button" data-value="Đồng cảm & hỏi thăm tự nhiên" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Đồng cảm / Hỏi thăm</button>
+                                <button type="button" data-value="Trêu vui hài hước nhẹ nhàng" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Pha trò vui vẻ</button>
+                                <button type="button" data-value="Mở chủ đề mới thú vị" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Đổi chủ đề</button>
+                                <button type="button" data-value="Rủ đi cafe/ăn uống tinh tế có đường lui" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Rủ đi chơi</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <input id="extraContextInput" type="text" placeholder="📝 Ghi chú thêm về cô ấy (vd: cô ấy nuôi mèo, thích uống matcha...)" class="w-full rounded-xl bg-warm-50 dark:bg-stone-900/70 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-200 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                        </div>
+                    </div>
+
+                    <!-- Thanh trượt điều chỉnh giọng văn (Lưu theo Thread) -->
+                    <div class="p-3 rounded-xl bg-warm-100/70 dark:bg-stone-900/60 border border-warm-200/80 dark:border-stone-700 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span>⚡ Mức viết tắt:</span>
+                                    <span id="abbrevLabelA" class="text-warm-600 dark:text-amber-400">Vừa phải</span>
+                                </div>
+                                <input id="abbrevSliderA" type="range" min="1" max="3" step="1" value="2" class="custom-slider">
+                                <div class="flex justify-between text-[10px] text-stone-400 mt-0.5">
+                                    <span>1. Ít</span>
+                                    <span>2. Vừa (ko, dc)</span>
+                                    <span>3. Nhiều (nma, bh, j)</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span>😄 Độ hài hước:</span>
+                                    <span id="humorLabelA" class="text-warm-600 dark:text-amber-400">Tự nhiên</span>
+                                </div>
+                                <input id="humorSliderA" type="range" min="1" max="3" step="1" value="2" class="custom-slider">
+                                <div class="flex justify-between text-[10px] text-stone-400 mt-0.5">
+                                    <span>1. Điềm đạm</span>
+                                    <span>2. Tự nhiên</span>
+                                    <span>3. Nhí nhố</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-bold text-stone-700 dark:text-stone-300 block mb-1.5">🗣️ Cách xưng hô:</span>
+                            <div class="grid grid-cols-3 sm:grid-cols-5 gap-1.5" id="pronounGroupA">
+                                <button type="button" data-value="mình - bạn" class="chip-btn text-xs py-1.5 px-2 rounded-xl border transition">mình - bạn</button>
+                                <button type="button" data-value="tớ - cậu" class="chip-btn text-xs py-1.5 px-2 rounded-xl border transition">tớ - cậu</button>
+                                <button type="button" data-value="anh - em" class="chip-btn text-xs py-1.5 px-2 rounded-xl border transition">anh - em</button>
+                                <button type="button" data-value="tui - bà" class="chip-btn text-xs py-1.5 px-2 rounded-xl border transition">tui - bà</button>
+                                <button type="button" data-value="em - chị" class="chip-btn text-xs py-1.5 px-2 rounded-xl border transition">em - chị</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nút Gợi ý -->
+                    <button type="button" id="btnSubmitModeA" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-warm-500 to-amber-600 hover:from-warm-600 hover:to-amber-700 text-white font-bold text-sm shadow-md shadow-warm-500/20 active:scale-[0.99] transition flex items-center justify-center gap-2">
+                        <span>✨ Phân tích & Gợi ý trả lời</span>
+                    </button>
+                </div>
+
+                <!-- Khu vực hiển thị kết quả Chế độ A -->
+                <div id="modeAResultArea" class="space-y-3"></div>
+            </section>
+
+            <!-- ========================================================================= -->
+            <!-- TAB 2: ✍️ SOẠN TIN (TÔI VIẾT, AI SỬA — GIAI ĐOẠN 2 HOÀN CHỈNH)             -->
+            <!-- ========================================================================= -->
+            <section id="viewCompose" class="space-y-3.5 hidden">
+
+                <!-- 1. KHUNG NHẬP BẢN NHÁP / Ý TƯỞNG & NGỮ CẢNH (MỤC 2.1, 2.2, 2.7) -->
+                <div class="bg-white dark:bg-stone-800/90 border border-warm-200 dark:border-stone-700 rounded-2xl p-4 shadow-xs space-y-3.5">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <h2 class="text-sm font-extrabold text-stone-900 dark:text-white flex items-center gap-1.5">
+                                <span>✍️</span>
+                                <span>Soạn tin — Bạn viết hoặc nêu ý, AI trau chuốt</span>
+                            </h2>
+                            <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                                Giữ nguyên 100% ý nghĩa và giọng thật của bạn, chỉ chỉnh cho tự nhiên, gọn và đúng xưng hô.
+                            </p>
+                        </div>
+                        <button type="button" id="btnToggleComposeDraftsDrawer" class="px-2.5 py-1.5 rounded-xl bg-warm-100 hover:bg-warm-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-200 text-[11px] font-bold transition flex items-center gap-1 flex-shrink-0">
+                            <span>🗂️</span>
+                            <span id="composeSavedDraftsCountBadge">0/20 bản nháp</span>
+                        </button>
+                    </div>
+
+                    <!-- Khung xem lại 20 bản nháp gần nhất (Mục 2.7) -->
+                    <div id="composeDraftsDrawer" class="hidden p-3 rounded-xl bg-warm-100/60 dark:bg-stone-900/80 border border-warm-200 dark:border-stone-700 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold text-stone-700 dark:text-stone-200">🕒 20 bản nháp gần nhất:</span>
+                            <button type="button" id="btnClearAllComposeDrafts" class="text-[11px] font-bold text-red-600 dark:text-red-400 hover:underline">
+                                🗑️ Xoá hết lịch sử nháp
+                            </button>
+                        </div>
+                        <div id="composeSavedDraftsList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+                    </div>
+
+                    <!-- Mục 2.1: Nút chuyển 2 cách nhập ("Tôi đã viết nháp" vs "Tôi chỉ có ý") -->
+                    <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-warm-100/80 dark:bg-stone-900 border border-warm-200/70 dark:border-stone-700">
+                        <button type="button" id="btnComposeModeDraft" class="flex-1 py-2 px-3 rounded-xl text-xs font-extrabold transition bg-warm-500 text-white shadow-xs flex items-center justify-center gap-1.5">
+                            <span>✍️</span>
+                            <span>Tôi đã viết nháp</span>
+                        </button>
+                        <button type="button" id="btnComposeModeIdea" class="flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition bg-warm-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-warm-200 dark:hover:bg-stone-700 flex items-center justify-center gap-1.5">
+                            <span>💡</span>
+                            <span>Tôi chỉ có ý</span>
+                        </button>
+                    </div>
+                    <p id="composeInputModeHint" class="text-[11px] text-stone-500 dark:text-stone-400 italic">
+                        AI sẽ giữ nguyên ý & thông tin thật của bạn, chỉ chấm điểm độ tự nhiên và gọt lại câu chữ cho đỡ cứng/sến.
+                    </p>
+
+                    <!-- Ô nhập bản nháp hoặc gạch đầu dòng ý tưởng -->
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <label id="composeInputLabel" for="composeUserInput" class="text-xs font-bold text-stone-800 dark:text-stone-100">
+                                ✍️ Dán tin nhắn nháp bạn định gửi:
+                            </label>
+                            <button type="button" id="btnClearComposeInput" class="text-xs text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition">
+                                Xoá chữ
+                            </button>
+                        </div>
+                        <textarea id="composeUserInput" rows="3" placeholder="Ví dụ: muốn nói tớ cũng thích phim đó nhưng chưa xem tập mới, hỏi cô ấy xem tới đâu rồi..." class="w-full rounded-xl bg-warm-50 dark:bg-stone-900/90 border border-warm-200 dark:border-stone-700 p-3 text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-warm-500 transition resize-none"></textarea>
+                    </div>
+
+                    <!-- Mục 2.2: Ngữ cảnh tuỳ chọn (Chọn Thread, nhập tin cô ấy vừa nhắn hoặc đính kèm ảnh) -->
+                    <div class="space-y-2.5 pt-2 border-t border-warm-100 dark:border-stone-700/60">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <label for="composeThreadSelect" class="text-xs font-bold text-stone-700 dark:text-stone-300">
+                                👤 Ngữ cảnh cuộc trò chuyện (tuỳ chọn):
+                            </label>
+                            <button type="button" id="btnSyncStyleFromThread" class="text-[11px] font-bold text-warm-600 dark:text-amber-400 hover:underline">
+                                🔄 Lấy xưng hô & thanh trượt từ Thread
+                            </button>
+                        </div>
+                        <select id="composeThreadSelect" class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500"></select>
+
+                        <div>
+                            <label for="composeHerMsgInput" class="block text-xs font-bold text-stone-600 dark:text-stone-300 mb-1">
+                                💌 Tin cô ấy vừa nhắn (tuỳ chọn — để AI khớp mạch chuyện):
+                            </label>
+                            <input id="composeHerMsgInput" type="text" placeholder="Dán tin nhắn cô ấy vừa gửi hoặc đính kèm ảnh bên dưới..." class="w-full rounded-xl bg-warm-50 dark:bg-stone-900/70 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-200 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                        </div>
+
+                        <!-- Component đính kèm ảnh tái sử dụng cho Tab Soạn tin -->
+                        <div id="composeAttachmentRoot"></div>
+
+                        <!-- Chọn mục tiêu tin nhắn (Mục 2.2) -->
+                        <div>
+                            <span class="text-xs font-bold text-stone-600 dark:text-stone-300 block mb-1.5">🎯 Mục tiêu tin nhắn này:</span>
+                            <div class="flex flex-wrap gap-1.5" id="composeGoalGroup">
+                                <button type="button" data-value="Đồng cảm & hỏi thăm tự nhiên" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Đồng cảm</button>
+                                <button type="button" data-value="Trêu nhẹ vui vẻ tinh tế" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Trêu nhẹ</button>
+                                <button type="button" data-value="Chia sẻ chuyện của mình & hỏi mở" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Chia sẻ & Hỏi mở</button>
+                                <button type="button" data-value="Rủ đi chơi / cafe nhẹ nhàng có đường lui" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Rủ đi chơi</button>
+                                <button type="button" data-value="Xin lỗi gọn gàng chân thành (không xin lỗi dồn)" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Xin lỗi</button>
+                                <button type="button" data-value="Kết thúc cuộc trò chuyện lịch sự, giữ thiện cảm" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Kết thúc lịch sự</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mục 2.7: 4 Thanh trượt điều chỉnh (Viết tắt, Hài hước, Độ dài, Mức Emoji) & Xưng hô -->
+                    <div class="p-3 rounded-xl bg-warm-100/70 dark:bg-stone-900/60 border border-warm-200/80 dark:border-stone-700 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span>⚡ Mức viết tắt:</span>
+                                    <span id="abbrevLabelCompose" class="text-warm-600 dark:text-amber-400">Vừa phải</span>
+                                </div>
+                                <input id="abbrevSliderCompose" type="range" min="1" max="3" step="1" value="2" class="custom-slider">
+                                <div class="flex justify-between text-[10px] text-stone-400 mt-0.5">
+                                    <span>1. Ít</span>
+                                    <span>2. Vừa (ko, dc)</span>
+                                    <span>3. Nhiều (nma, bh)</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span>😄 Độ hài hước:</span>
+                                    <span id="humorLabelCompose" class="text-warm-600 dark:text-amber-400">Tự nhiên</span>
+                                </div>
+                                <input id="humorSliderCompose" type="range" min="1" max="3" step="1" value="2" class="custom-slider">
+                                <div class="flex justify-between text-[10px] text-stone-400 mt-0.5">
+                                    <span>1. Điềm đạm</span>
+                                    <span>2. Tự nhiên</span>
+                                    <span>3. Nhí nhố</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span>📏 Độ dài tin:</span>
+                                    <span id="lengthLabelCompose" class="text-warm-600 dark:text-amber-400">Vừa phải (1–2 tin)</span>
+                                </div>
+                                <input id="lengthSliderCompose" type="range" min="1" max="3" step="1" value="2" class="custom-slider">
+                                <div class="flex justify-between text-[10px] text-stone-400 mt-0.5">
+                                    <span>1. Ngắn (1 tin)</span>
+                                    <span>2. Vừa (1–2 tin)</span>
+                                    <span>3. Đầy đủ (2–3 tin)</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span>😊 Mức Emoji:</span>
+                                    <span id="emojiLabelCompose" class="text-warm-600 dark:text-amber-400">Vừa phải (1–2 emoji)</span>
+                                </div>
+                                <input id="emojiSliderCompose" type="range" min="1" max="3" step="1" value="2" class="custom-slider">
+                                <div class="flex justify-between text-[10px] text-stone-400 mt-0.5">
+                                    <span>1. Ít / Không</span>
+                                    <span>2. Vừa (1–2)</span>
+                                    <span>3. Nhiều biểu cảm</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-bold text-stone-700 dark:text-stone-300 block mb-1.5">🗣️ Cách xưng hô:</span>
+                            <div class="grid grid-cols-3 sm:grid-cols-5 gap-1.5" id="pronounGroupCompose">
+                                <button type="button" data-value="mình - bạn" class="chip-btn text-xs py-1.5 px-2 rounded-xl border transition">mình - bạn</button>
+                                <button type="button" data-value="tớ - cậu" class="chip-btn text-xs py-1.5 px-2 rounded-xl border transition">tớ - cậu</button>
+                                <button type="button" data-value="anh - em" class="chip-btn text-xs py-1.5 px-2 rounded-xl border transition">anh - em</button>
+                                <button type="button" data-value="tui - bà" class="chip-btn text-xs py-1.5 px-2 rounded-xl border transition">tui - bà</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nút thực hiện Phân tích & Chỉnh sửa bản nháp -->
+                    <button type="button" id="btnSubmitCompose" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-warm-500 to-amber-600 hover:from-warm-600 hover:to-amber-700 text-white font-bold text-sm shadow-md shadow-warm-500/20 active:scale-[0.99] transition flex items-center justify-center gap-2">
+                        <span>✨ Phân tích & Chỉnh sửa tin nhắn</span>
+                    </button>
+                </div>
+
+                <!-- 2. KHU VỰC HIỂN THỊ KẾT QUẢ CHẨN ĐOÁN, ĐỐI CHIẾU 3 BẢN SỬA & TINH CHỈNH LIÊN TỤC -->
+                <div id="composeResultArea" class="space-y-3"></div>
+            </section>
+
+            <!-- ========================================================================= -->
+            <!-- TAB 3: 💘 LÀM QUEN (MỚI MATCH APP HẸN HÒ — KHUNG CHỜ GIAI ĐOẠN 3)         -->
+            <!-- ========================================================================= -->
+            <section id="viewDating" class="space-y-3.5 hidden">
+                <div class="bg-white dark:bg-stone-800/90 border border-warm-200 dark:border-stone-700 rounded-2xl p-6 shadow-xs text-center space-y-3 animate-pop">
+                    <div class="w-12 h-12 mx-auto rounded-2xl bg-warm-100 dark:bg-stone-700 flex items-center justify-center text-2xl">
+                        💘
+                    </div>
+                    <div class="space-y-1">
+                        <span class="inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300/60">
+                            Sắp ra mắt
+                        </span>
+                        <h2 class="text-base font-extrabold text-stone-800 dark:text-stone-100">
+                            💘 Làm quen — Mở lời tự nhiên khi mới Match
+                        </h2>
+                        <p class="text-xs text-stone-500 dark:text-stone-400 max-w-md mx-auto leading-relaxed">
+                            Đọc điểm chung từ ảnh hồ sơ/bio trên Tinder, Bumble, Hinge, gợi ý câu mở đầu tinh tế và lộ trình 10 tin nhắn đầu tiên (sẽ mở ở <strong>Giai đoạn 3</strong>).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================================= -->
+            <!-- TAB 4: 📡 PHÂN TÍCH (ĐỌC TÍN HIỆU & CỨU CHAT — KHUNG CHỜ GIAI ĐOẠN 4)     -->
+            <!-- ========================================================================= -->
+            <section id="viewAnalyze" class="space-y-3.5 hidden">
+                <div class="bg-white dark:bg-stone-800/90 border border-warm-200 dark:border-stone-700 rounded-2xl p-6 shadow-xs text-center space-y-3 animate-pop">
+                    <div class="w-12 h-12 mx-auto rounded-2xl bg-warm-100 dark:bg-stone-700 flex items-center justify-center text-2xl">
+                        📡
+                    </div>
+                    <div class="space-y-1">
+                        <span class="inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300/60">
+                            Sắp ra mắt
+                        </span>
+                        <h2 class="text-base font-extrabold text-stone-800 dark:text-stone-100">
+                            📡 Phân tích tín hiệu & Cứu cuộc trò chuyện
+                        </h2>
+                        <p class="text-xs text-stone-500 dark:text-stone-400 max-w-md mx-auto leading-relaxed">
+                            Phân tích mức độ hứng thú qua từng tin nhắn kèm bằng chứng, biểu đồ trực quan và chiến lược xử lý khi cuộc trò chuyện sắp nguội (sẽ mở ở <strong>Giai đoạn 4</strong>).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================================= -->
+            <!-- TAB 5 (CHẾ ĐỘ B): 🎭 LUYỆN TẬP NHẮN TIN VỚI AI                            -->
+            <!-- ========================================================================= -->
+            <section id="viewModeB" class="space-y-3.5 hidden">
+                <div class="bg-white dark:bg-stone-800/90 border border-warm-200 dark:border-stone-700 rounded-2xl p-4 shadow-xs space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-sm font-bold text-stone-800 dark:text-stone-100">🎭 Phòng luyện tập phản xạ nhắn tin</h2>
+                            <p class="text-xs text-stone-500 dark:text-stone-400">Nhân vật phản hồi tự nhiên theo đúng thái độ và cách nói chuyện của bạn.</p>
+                        </div>
+                        <button type="button" id="btnResetRoleplay" class="text-xs font-bold px-2.5 py-1.5 rounded-xl bg-warm-100 hover:bg-warm-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-200 transition">
+                            🔄 Tạo buổi mới
+                        </button>
+                    </div>
+
+                    <div class="space-y-2.5 pt-1 border-t border-warm-100 dark:border-stone-700/60">
+                        <div>
+                            <span class="text-xs font-bold text-stone-600 dark:text-stone-300 block mb-1">👧 Chọn tính cách bạn nữ (từ 18 tuổi):</span>
+                            <div class="flex flex-wrap gap-1.5" id="personaGroupB">
+                                <button type="button" data-value="Một bạn nữ 20 tuổi hướng ngoại, vui tính, hay đùa, thích trà sữa và chụp ảnh dạo" class="chip-btn text-xs py-1.5 px-2.5 rounded-xl border transition">😄 Hướng ngoại, hay đùa</button>
+                                <button type="button" data-value="Một bạn nữ 21 tuổi trầm tính, ít nói lúc đầu nhưng ấm áp nếu tìm đúng chủ đề sách/nhạc/mèo" class="chip-btn text-xs py-1.5 px-2.5 rounded-xl border transition">🌙 Trầm tính, ít nói</button>
+                                <button type="button" data-value="Một bạn nữ 19 tuổi dễ thương, hay ngại ngùng, lịch sự, thích xem phim hoạt hình và đồ ngọt" class="chip-btn text-xs py-1.5 px-2.5 rounded-xl border transition">🥺 Dễ thương, hay ngại</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-bold text-stone-600 dark:text-stone-300 block mb-1">📌 Chọn tình huống bắt đầu:</span>
+                            <div class="flex flex-wrap gap-1.5" id="situationGroupB">
+                                <button type="button" data-value="Mới follow nhau trên Instagram, bạn nam vừa rep story ảnh đi uống cafe cuối tuần của bạn" class="chip-btn text-xs py-1.5 px-2.5 rounded-xl border transition">📸 Mới quen qua Instagram</button>
+                                <button type="button" data-value="Học cùng lớp đại học / cùng câu lạc bộ, vừa được xếp chung nhóm làm sự kiện" class="chip-btn text-xs py-1.5 px-2.5 rounded-xl border transition">🎒 Cùng lớp / Cùng CLB</button>
+                                <button type="button" data-value="Được một người bạn thân giới thiệu cho làm quen vì cả hai đều thích nuôi mèo" class="chip-btn text-xs py-1.5 px-2.5 rounded-xl border transition">🐱 Bạn bè giới thiệu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Khung hội thoại Messenger -->
+                <div class="bg-white dark:bg-stone-800/90 border border-warm-200 dark:border-stone-700 rounded-2xl shadow-xs flex flex-col h-[410px] overflow-hidden">
+                    <div class="px-4 py-2.5 bg-warm-100/80 dark:bg-stone-800 border-b border-warm-200 dark:border-stone-700 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-amber-400 flex items-center justify-center text-white text-sm font-bold">
+                                👧
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-stone-800 dark:text-stone-100" id="roleplayHeaderTitle">Bạn nữ (Hướng ngoại, hay đùa)</div>
+                                <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold" id="roleplayTurnCount">Đang trực tuyến • 0 lượt</div>
+                            </div>
+                        </div>
+
+                        <button type="button" id="btnFinishAndScore" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition flex items-center gap-1">
+                            <span>🏆</span>
+                            <span>Chấm điểm</span>
+                        </button>
+                    </div>
+
+                    <div id="roleplayChatWindow" class="flex-1 p-3.5 overflow-y-auto space-y-2.5 bg-warm-50/60 dark:bg-stone-900/70">
+                        <div class="text-center py-6 px-4 space-y-2">
+                            <div class="text-2xl">👋</div>
+                            <p class="text-xs text-stone-500 dark:text-stone-400">
+                                Hãy gõ tin nhắn mở lời bên dưới để bắt đầu, hoặc bấm nút để cô ấy nhắn trước.
+                            </p>
+                            <button type="button" id="btnHerFirstMsg" class="mt-1 px-3 py-1.5 rounded-xl bg-warm-200/80 hover:bg-warm-300/80 dark:bg-stone-800 dark:hover:bg-stone-700 text-xs font-bold text-stone-700 dark:text-stone-200 transition">
+                                ✨ Để cô ấy nhắn trước
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="roleplayInputForm" class="p-2.5 bg-white dark:bg-stone-800 border-t border-warm-200 dark:border-stone-700 flex items-center gap-2">
+                        <input id="roleplayUserMsg" type="text" autocomplete="off" placeholder="Nhập tin nhắn của bạn..." class="flex-1 rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3.5 py-2.5 text-sm text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                        <button type="submit" id="btnSendRoleplay" class="px-4 py-2.5 rounded-xl bg-warm-500 hover:bg-warm-600 text-white font-bold text-sm shadow-xs transition flex-shrink-0">
+                            Gửi
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Khu vực hiển thị bảng chấm điểm cuối buổi -->
+                <div id="roleplayEvaluationArea" class="space-y-3"></div>
+            </section>
+
+            <!-- ========================================================================= -->
+            <!-- TRANG CÀI ĐẶT & HỒ SƠ CỦA TÔI (MỞ TỪ NÚT 🪪 / ⚙️ TRÊN HEADER)              -->
+            <!-- ========================================================================= -->
+            <section id="viewSettings" class="space-y-4 hidden">
+
+                <!-- Khối Mục 1.8: HỒ SƠ CỦA TÔI & PHÂN TÍCH GIỌNG VĂN (LƯU CHUNG TOÀN APP) -->
+                <div id="myProfileSectionCard" class="bg-white dark:bg-stone-800/90 border border-warm-200 dark:border-stone-700 rounded-2xl p-4 shadow-xs space-y-3.5">
+                    <div class="flex items-start gap-2.5">
+                        <span class="text-xl">🪪</span>
+                        <div>
+                            <h2 class="text-sm font-bold text-stone-900 dark:text-white">Hồ sơ của tôi & Phong cách giọng văn</h2>
+                            <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                                Các thông tin này lưu trên máy và được gửi tới Google Gemini cùng yêu cầu khi AI cần dùng. Nếu bạn điền thông tin ở đây, AI sẽ dùng đúng thông tin thật và giọng văn của bạn thay vì để ngoặc vuông <code class="font-mono">[...]</code>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="myProfileOccupationInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                                🎓 Đang học / làm gì:
+                            </label>
+                            <input id="myProfileOccupationInput" type="text" placeholder="Vd: Sinh viên năm 3 CNTT, làm thiết kế..." class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                        </div>
+
+                        <div>
+                            <label for="myProfileInterestsInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                                🎸 Sở thích của tôi:
+                            </label>
+                            <input id="myProfileInterestsInput" type="text" placeholder="Vd: Nghe nhạc Indie, chạy bộ, uống bạc xỉu, nuôi mèo..." class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="myProfileFactsInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                            🌱 Vài điều thật muốn chia sẻ thêm:
+                        </label>
+                        <input id="myProfileFactsInput" type="text" placeholder="Vd: Cuối tuần hay ngồi cafe làm bài ở khu Hồ Tây, đang tập nấu ăn..." class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="myProfileBirthYearInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                                🎂 Năm sinh (tuỳ chọn):
+                            </label>
+                            <input id="myProfileBirthYearInput" type="number" min="1950" max="2016" placeholder="Vd: 2004" class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                            <p id="myProfileBirthYearWarning" class="hidden text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-1">
+                                App dành cho người từ 18 tuổi trở lên
+                            </p>
+                        </div>
+
+                        <div>
+                            <label for="myProfileCityInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                                📍 Nơi đang ở hoặc quê:
+                            </label>
+                            <input id="myProfileCityInput" type="text" placeholder="Vd: Hà Nội, TP.HCM, Đà Nẵng..." class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div>
+                            <span class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">
+                                🧩 Tính cách của tôi (chọn tối đa 5):
+                            </span>
+                            <div class="flex flex-wrap gap-1.5" id="myProfilePersonalityGroup">
+                                <button type="button" data-value="Hướng nội" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Hướng nội</button>
+                                <button type="button" data-value="Hướng ngoại" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Hướng ngoại</button>
+                                <button type="button" data-value="Trầm tính" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Trầm tính</button>
+                                <button type="button" data-value="Hài hước" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Hài hước</button>
+                                <button type="button" data-value="Nghiêm túc" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Nghiêm túc</button>
+                                <button type="button" data-value="Dễ ngại" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Dễ ngại</button>
+                                <button type="button" data-value="Ấm áp" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Ấm áp</button>
+                                <button type="button" data-value="Thẳng thắn" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Thẳng thắn</button>
+                                <button type="button" data-value="Hay lo nghĩ" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Hay lo nghĩ</button>
+                                <button type="button" data-value="Thích khám phá" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Thích khám phá</button>
+                                <button type="button" data-value="Lãng mạn" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Lãng mạn</button>
+                                <button type="button" data-value="Cẩn thận" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Cẩn thận</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="myProfilePersonalityNoteInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                                ✍️ Tự mô tả thêm tính cách:
+                            </label>
+                            <input id="myProfilePersonalityNoteInput" type="text" placeholder="Vd: Mới quen hơi ít nói nhưng thân rồi rất lầy và biết lắng nghe..." class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="myProfileStrengthsInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                                🌟 Điều tôi tự tin / điểm đáng yêu:
+                            </label>
+                            <input id="myProfileStrengthsInput" type="text" placeholder="Vd: Biết nấu ăn, đúng giờ, hay nhớ chi tiết nhỏ..." class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                        </div>
+
+                        <div>
+                            <label for="myProfileAvoidInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                                🚫 Chủ đề không muốn nhắc tới:
+                            </label>
+                            <input id="myProfileAvoidInput" type="text" placeholder="Vd: Người yêu cũ, hỏi lương thưởng, chuyện gia đình riêng tư..." class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3 py-2 text-xs text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">
+                            🎯 Mục tiêu của tôi khi dùng app:
+                        </span>
+                        <div class="flex flex-wrap gap-1.5" id="myProfileGoalGroup">
+                            <button type="button" data-value="Làm quen bạn mới" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Làm quen bạn mới</button>
+                            <button type="button" data-value="Tìm hiểu một người cụ thể" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Tìm hiểu một người cụ thể</button>
+                            <button type="button" data-value="Hướng tới hẹn hò nghiêm túc" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Hướng tới hẹn hò nghiêm túc</button>
+                            <button type="button" data-value="Chỉ luyện tập nhắn tin" class="chip-btn text-xs py-1 px-2.5 rounded-lg border transition">Chỉ luyện tập nhắn tin</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="myProfileSampleMsgsInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                            💬 5–10 tin nhắn mẫu của tôi (mỗi dòng 1 câu bạn hay nhắn thật ngoài đời):
+                        </label>
+                        <textarea id="myProfileSampleMsgsInput" rows="4" placeholder="Ví dụ:&#10;Hnay chạy deadline mệt xỉu luôn á haha&#10;Oki nha có gì tối rảnh tớ nhắn lại hen 😊&#10;Cuối tuần cậu hay đi đâu chơi ko hay nằm nhà nạp pin thế 😆" class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 p-3 text-xs text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-warm-500 resize-none"></textarea>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button" id="btnSaveMyProfile" class="flex-1 py-2.5 px-4 rounded-xl bg-warm-500 hover:bg-warm-600 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5">
+                            <span>💾</span>
+                            <span>Lưu hồ sơ của tôi</span>
+                        </button>
+                        <button type="button" id="btnAnalyzeMyVoice" class="flex-1 py-2.5 px-4 rounded-xl bg-stone-800 hover:bg-stone-900 dark:bg-stone-700 dark:hover:bg-stone-600 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5">
+                            <span>✨</span>
+                            <span>Phân tích giọng của tôi</span>
+                        </button>
+                    </div>
+
+                    <!-- Khu vực hiển thị kết quả phân tích giọng văn -->
+                    <div id="myVoiceStyleResultBox" class="hidden"></div>
+                </div>
+
+                <!-- Khối 1: Cài đặt Gemini API -->
+                <div class="bg-white dark:bg-stone-800/90 border border-warm-200 dark:border-stone-700 rounded-2xl p-4 shadow-xs space-y-4">
+                    <div class="flex items-start gap-2.5">
+                        <span class="text-xl">🔑</span>
+                        <div>
+                            <h2 class="text-sm font-bold text-stone-900 dark:text-white">Kết nối Google Gemini API</h2>
+                            <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                                Khóa của bạn được bảo mật trên thiết bị và gửi qua giao thức <code class="font-mono">x-goog-api-key</code>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="settingApiKeyInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1.5">
+                            1. Mã Gemini API Key:
+                        </label>
+                        <div class="flex gap-1.5">
+                            <input id="settingApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="AIzaSy..." class="flex-1 rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3.5 py-2.5 text-sm font-mono text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                            <button type="button" id="btnToggleKeyVisibility" class="px-3 rounded-xl bg-warm-100 dark:bg-stone-700 text-xs font-semibold text-stone-600 dark:text-stone-300 border border-warm-200 dark:border-stone-600">
+                                Hiện
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-stone-400 mt-1">
+                            Lấy khóa miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-warm-600 dark:text-amber-400 underline font-semibold">Google AI Studio</a>.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <label for="settingModelInput" class="block text-xs font-bold text-stone-700 dark:text-stone-300">
+                                2. Tên Model AI:
+                            </label>
+                            <button type="button" id="btnDetectModels" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/80 dark:hover:bg-amber-900 text-amber-800 dark:text-amber-300 border border-amber-300/60 transition flex items-center gap-1">
+                                <span>🔍</span>
+                                <span>Tự động dò Model</span>
+                            </button>
+                        </div>
+                        <input id="settingModelInput" type="text" autocomplete="off" spellcheck="false" value="gemini-2.5-flash" class="w-full rounded-xl bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 px-3.5 py-2.5 text-sm font-mono text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+
+                        <div id="detectedModelsBox" class="hidden p-2.5 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/70 space-y-1.5">
+                            <label for="detectedModelsSelect" class="block text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+                                ✅ Chọn Model khả dụng cho tài khoản của bạn:
+                            </label>
+                            <select id="detectedModelsSelect" class="w-full rounded-lg bg-white dark:bg-stone-900 border border-emerald-300 dark:border-emerald-700 px-2.5 py-1.5 text-xs font-mono text-stone-800 dark:text-stone-100 focus:outline-none"></select>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1.5 pt-0.5 items-center">
+                            <span class="text-[11px] text-stone-400">Chọn nhanh:</span>
+                            <button type="button" data-model="gemini-3-flash-preview" class="quick-model-btn text-[11px] font-mono px-2 py-0.5 rounded-md bg-warm-100 hover:bg-warm-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 border border-warm-200 dark:border-stone-600">gemini-3-flash-preview</button>
+                            <button type="button" data-model="gemini-2.5-flash" class="quick-model-btn text-[11px] font-mono px-2 py-0.5 rounded-md bg-warm-100 hover:bg-warm-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 border border-warm-200 dark:border-stone-600">gemini-2.5-flash</button>
+                            <button type="button" data-model="gemini-2.5-flash-lite" class="quick-model-btn text-[11px] font-mono px-2 py-0.5 rounded-md bg-warm-100 hover:bg-warm-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 border border-warm-200 dark:border-stone-600">gemini-2.5-flash-lite</button>
+                            <button type="button" data-model="gemini-flash-latest" class="quick-model-btn text-[11px] font-mono px-2 py-0.5 rounded-md bg-warm-100 hover:bg-warm-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 border border-warm-200 dark:border-stone-600">gemini-flash-latest</button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                        <button type="button" id="btnSaveSettings" class="flex-1 py-2.5 px-4 rounded-xl bg-warm-500 hover:bg-warm-600 text-white font-bold text-xs sm:text-sm shadow-xs transition">
+                            💾 Lưu cài đặt
+                        </button>
+                        <button type="button" id="btnTestConnection" class="flex-1 py-2.5 px-4 rounded-xl bg-stone-800 hover:bg-stone-900 dark:bg-stone-700 dark:hover:bg-stone-600 text-white font-bold text-xs sm:text-sm shadow-xs transition">
+                            📡 Kiểm tra kết nối
+                        </button>
+                        <button type="button" id="btnClearSettingsKey" class="py-2.5 px-3 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-300 font-semibold text-xs border border-red-200 dark:border-red-800/60 transition">
+                            Xoá Key
+                        </button>
+                    </div>
+
+                    <div id="connectionTestResultBox" class="hidden rounded-xl p-3 text-xs border"></div>
+                </div>
+
+                <!-- Khối 2: Sao lưu, Khôi phục & Xoá dữ liệu -->
+                <div class="bg-white dark:bg-stone-800/90 border border-warm-200 dark:border-stone-700 rounded-2xl p-4 shadow-xs space-y-3.5">
+                    <div class="flex items-start gap-2.5">
+                        <span class="text-xl">🗂️</span>
+                        <div>
+                            <h3 class="text-sm font-bold text-stone-900 dark:text-white">Quản lý & Sao lưu dữ liệu</h3>
+                            <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                                Lưu toàn bộ danh sách cuộc trò chuyện, bản nháp soạn tin, hồ sơ cá nhân và lịch sử của bạn ra file JSON hoặc khôi phục lại bất cứ lúc nào.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                        <button type="button" id="btnExportData" class="py-2.5 px-3 rounded-xl bg-warm-100 hover:bg-warm-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-100 font-bold text-xs border border-warm-200 dark:border-stone-600 transition flex items-center justify-center gap-1.5">
+                            <span>📥</span>
+                            <span>Xuất dữ liệu (.json)</span>
+                        </button>
+
+                        <label for="importDataFileInput" class="cursor-pointer py-2.5 px-3 rounded-xl bg-warm-100 hover:bg-warm-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-100 font-bold text-xs border border-warm-200 dark:border-stone-600 transition flex items-center justify-center gap-1.5">
+                            <span>📤</span>
+                            <span>Nhập dữ liệu (.json)</span>
+                        </label>
+                        <input id="importDataFileInput" type="file" accept=".json,application/json" class="hidden">
+
+                        <button type="button" id="btnWipeAllData" class="py-2.5 px-3 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/50 text-red-600 dark:text-red-300 font-bold text-xs border border-red-200 dark:border-red-800/60 transition flex items-center justify-center gap-1.5">
+                            <span>🗑️</span>
+                            <span>Xoá toàn bộ dữ liệu</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ================= THANH ĐIỀU HƯỚNG DƯỚI ĐÁY 5 TAB (MỤC 1.1) ================= -->
+        <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-xl z-30 bg-warm-50/95 dark:bg-warm-900/95 backdrop-blur-md border-t border-warm-200 dark:border-stone-800 px-2 py-1.5 shadow-lg">
+            <div class="grid grid-cols-5 gap-1">
+                <button type="button" data-nav="modeA" class="bottom-nav-btn py-1.5 px-1 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-warm-600 dark:text-amber-400 bg-warm-100/90 dark:bg-stone-800 font-bold">
+                    <span class="text-base leading-none">💡</span>
+                    <span class="text-[10px] sm:text-[11px] truncate max-w-full">Gợi ý</span>
+                </button>
+                <button type="button" data-nav="compose" class="bottom-nav-btn py-1.5 px-1 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 font-semibold">
+                    <span class="text-base leading-none">✍️</span>
+                    <span class="text-[10px] sm:text-[11px] truncate max-w-full">Soạn tin</span>
+                </button>
+                <button type="button" data-nav="dating" class="bottom-nav-btn py-1.5 px-1 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 font-semibold">
+                    <span class="text-base leading-none">💘</span>
+                    <span class="text-[10px] sm:text-[11px] truncate max-w-full">Làm quen</span>
+                </button>
+                <button type="button" data-nav="analyze" class="bottom-nav-btn py-1.5 px-1 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 font-semibold">
+                    <span class="text-base leading-none">📡</span>
+                    <span class="text-[10px] sm:text-[11px] truncate max-w-full">Phân tích</span>
+                </button>
+                <button type="button" data-nav="modeB" class="bottom-nav-btn py-1.5 px-1 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 font-semibold">
+                    <span class="text-base leading-none">🎭</span>
+                    <span class="text-[10px] sm:text-[11px] truncate max-w-full">Luyện tập</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- ================= MODAL TUỲ CHỈNH (THAY THẾ PROMPT / CONFIRM) ================= -->
+        <div id="customModalOverlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4">
+            <div class="bg-warm-50 dark:bg-stone-900 border border-warm-200 dark:border-stone-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 animate-pop">
+                <div class="flex items-start justify-between gap-2">
+                    <h3 id="modalTitle" class="font-extrabold text-sm sm:text-base text-stone-900 dark:text-white">Tiêu đề</h3>
+                    <button type="button" id="btnCloseModal" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-sm">✕</button>
+                </div>
+                <p id="modalDescription" class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed"></p>
+                <div id="modalInputWrap" class="hidden">
+                    <input id="modalTextInput" type="text" autocomplete="off" class="w-full rounded-xl bg-white dark:bg-stone-800 border border-warm-200 dark:border-stone-700 px-3.5 py-2.5 text-sm text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-warm-500">
+                </div>
+                <div class="flex items-center justify-end gap-2 pt-1">
+                    <button type="button" id="btnModalCancel" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-warm-100 hover:bg-warm-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition">
+                        Huỷ
+                    </button>
+                    <button type="button" id="btnModalConfirm" class="px-4 py-2 rounded-xl text-xs font-bold bg-warm-500 hover:bg-warm-600 text-white shadow-xs transition">
+                        Xác nhận
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= THÔNG BÁO TOAST ================= -->
+        <div id="toastBox" class="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform translate-y-2">
+            <div class="px-4 py-2.5 rounded-2xl bg-stone-900/95 dark:bg-stone-100/95 text-white dark:text-stone-900 text-xs font-bold shadow-xl flex items-center gap-2">
+                <span id="toastIcon">✅</span>
+                <span id="toastMessage">Đã sao chép!</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= NẠP CÁC FILE JAVASCRIPT THEO THỨ TỰ PHỤ THUỘC ================= -->
+    <script src="js/config.js"></script>
+    <script src="js/prompts.js"></script>
+    <script src="js/prompts-mode-a-rules.js"></script>
+    <script src="js/schemas.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui-common.js"></script>
+    <script src="js/attachments.js"></script>
+    <script src="js/mode-a.js"></script>
+    <script src="js/compose.js"></script>
+    <script src="js/dating.js"></script>
+    <script src="js/analyze.js"></script>
+    <script src="js/mode-b.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/unify-layout.js"></script>
+    <script src="js/unify-sync.js"></script>
+    <script src="js/unify-compat.js"></script>
+    <script src="js/unify-selfcheck.js"></script>
+    <script src="js/hide-abbrev.js"></script>
+    <script src="js/tone-control.js"></script>
+</body>
+</html>
