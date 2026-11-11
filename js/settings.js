@@ -4,6 +4,15 @@
  * ============================================================================
  */
 
+// Đồng bộ class màu sắc và trạng thái .active cho từng nút chip trong Hồ sơ của tôi
+function setProfileChipVisualState(btn, isActive) {
+    if (!btn) return;
+    btn.className = isActive
+        ? 'chip-btn active text-xs py-1.5 px-2.5 rounded-xl border transition bg-warm-500 text-white border-warm-500 font-bold shadow-xs'
+        : 'chip-btn text-xs py-1.5 px-2.5 rounded-xl border transition bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-warm-200 dark:border-stone-700 hover:bg-warm-100 dark:hover:bg-stone-700';
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+}
+
 // Ẩn/hiện dòng cảnh báo nhẹ dưới ô năm sinh nếu người dùng dưới 18 tuổi
 function updateBirthYearUnderageWarning(rawYearValue) {
     const warnEl = document.getElementById('myProfileBirthYearWarning');
@@ -44,20 +53,20 @@ function bindMyProfileExtraEvents() {
         personalityGroup.dataset.boundProfile = '1';
         personalityGroup.addEventListener('click', (e) => {
             const btn = e.target.closest('.chip-btn');
-            if (!btn) return;
+            if (!btn || !personalityGroup.contains(btn)) return;
+
             const isSelected = btn.classList.contains('active');
             if (isSelected) {
-                btn.classList.remove('active');
-                btn.setAttribute('aria-pressed', 'false');
+                setProfileChipVisualState(btn, false);
             } else {
                 const activeCount = personalityGroup.querySelectorAll('.chip-btn.active').length;
                 if (activeCount >= 5) {
                     showToast('Bạn chỉ có thể chọn tối đa 5 nét tính cách!', '⚠️');
                     return;
                 }
-                btn.classList.add('active');
-                btn.setAttribute('aria-pressed', 'true');
+                setProfileChipVisualState(btn, true);
             }
+            handleSaveMyProfile(false);
         });
     }
 
@@ -66,16 +75,16 @@ function bindMyProfileExtraEvents() {
         goalGroup.dataset.boundProfile = '1';
         goalGroup.addEventListener('click', (e) => {
             const btn = e.target.closest('.chip-btn');
-            if (!btn) return;
+            if (!btn || !goalGroup.contains(btn)) return;
+
             const wasActive = btn.classList.contains('active');
             goalGroup.querySelectorAll('.chip-btn').forEach(b => {
-                b.classList.remove('active');
-                b.setAttribute('aria-pressed', 'false');
+                setProfileChipVisualState(b, false);
             });
             if (!wasActive) {
-                btn.classList.add('active');
-                btn.setAttribute('aria-pressed', 'true');
+                setProfileChipVisualState(btn, true);
             }
+            handleSaveMyProfile(false);
         });
     }
 }
@@ -112,18 +121,16 @@ function syncMyProfileUI() {
     if (personalityGroup) {
         const selectedTags = Array.isArray(p.personalityTags) ? p.personalityTags : [];
         personalityGroup.querySelectorAll('.chip-btn').forEach(btn => {
-            const active = selectedTags.includes(btn.dataset.value || '');
-            btn.classList.toggle('active', active);
-            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+            const active = selectedTags.includes((btn.dataset.value || '').trim());
+            setProfileChipVisualState(btn, active);
         });
     }
 
     if (goalGroup) {
-        const currentGoal = p.goal || '';
+        const currentGoal = (p.goal || '').trim();
         goalGroup.querySelectorAll('.chip-btn').forEach(btn => {
-            const active = Boolean(currentGoal && btn.dataset.value === currentGoal);
-            btn.classList.toggle('active', active);
-            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+            const active = Boolean(currentGoal && (btn.dataset.value || '').trim() === currentGoal);
+            setProfileChipVisualState(btn, active);
         });
     }
 
@@ -236,6 +243,7 @@ function handleSaveMyProfile(showNotification = true) {
                 birthYearEl.focus();
                 return;
             }
+            parsedBirthYear = appState.myProfile.birthYear || null;
         } else {
             parsedBirthYear = numYear;
         }
