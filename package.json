@@ -1,0 +1,17 @@
+{
+  "name": "tranhoangspfa",
+  "version": "1.0.0",
+  "description": "TranHoangSpFA — Nhắn Tin Tự Nhiên & Chân Thành",
+  "private": true,
+  "scripts": {
+    "build:www": "node scripts/prepare-www.js",
+    "cap:sync": "npm run build:www && npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}
