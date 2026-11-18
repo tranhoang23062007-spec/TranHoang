@@ -1,0 +1,45 @@
+name: Build TranHoang Floating APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-android-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Tải mã nguồn từ Repo
+        uses: actions/checkout@v4
+
+      - name: 2. Nhúng toàn bộ giao diện Web hiện tại vào trong APK (Assets)
+        run: |
+          mkdir -p android-app/app/src/main/assets/www
+          rsync -av \
+            --exclude='android-app' \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='README.md' \
+            ./ android-app/app/src/main/assets/www/
+
+      - name: 3. Cài đặt Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 4. Cài đặt Gradle 8.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: 5. Biên dịch ra file APK
+        working-directory: android-app
+        run: gradle assembleDebug
+
+      - name: 6. Xuất file APK để tải về điện thoại
+        uses: actions/upload-artifact@v4
+        with:
+          name: TranHoang-Floating-AI-APK
+          path: android-app/app/build/outputs/apk/debug/app-debug.apk
