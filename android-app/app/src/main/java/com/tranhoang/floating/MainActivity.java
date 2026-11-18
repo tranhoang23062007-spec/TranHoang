@@ -101,7 +101,8 @@ public class MainActivity extends Activity {
             }
         });
 
-        String targetUrl = prefs.getString("web_url", LOCAL_ASSET_URL);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        String targetUrl = prefs.getString("web_url", GITHUB_PAGES_URL);
         mainWebView.loadUrl(targetUrl);
     }
 
@@ -161,7 +162,7 @@ public class MainActivity extends Activity {
     private void showBubbleControlDialog() {
         boolean hasOverlay = Settings.canDrawOverlays(this);
         boolean hasReader = ScreenReaderService.getInstance() != null;
-        String currentUrl = prefs.getString("web_url", LOCAL_ASSET_URL);
+        String currentUrl = prefs.getString("web_url", GITHUB_PAGES_URL);
         boolean isOffline = currentUrl.equals(LOCAL_ASSET_URL);
 
         LinearLayout container = new LinearLayout(this);

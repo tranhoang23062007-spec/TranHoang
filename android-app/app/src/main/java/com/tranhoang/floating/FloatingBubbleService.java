@@ -236,7 +236,8 @@ public class FloatingBubbleService extends Service {
         webView.setWebViewClient(new WebViewClient());
 
         SharedPreferences prefs = getSharedPreferences("tranhoang_prefs", MODE_PRIVATE);
-        String targetUrl = prefs.getString("web_url", "file:///android_asset/www/index.html");
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        String targetUrl = prefs.getString("web_url", "https://tranhoang23062007-spec.github.io/TranHoang/");
         webView.loadUrl(targetUrl);
     }
 
